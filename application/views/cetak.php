@@ -110,7 +110,9 @@
 			<p><?php echo $this->session->userdata('toko')->alamat; ?></p>
 			<p><strong>Nota:</strong> <?php echo $nota ?></p>
 			<p><strong>Tanggal:</strong> <?php echo $tanggal ?></p>
-			<p><strong>Kasir:</strong> <?php echo $kasir; ?></p>
+			<p>Kasir: <?= isset($kasirNama) ? htmlspecialchars($kasirNama) : 'Tidak tersedia'; ?></p>
+
+
 
 			<hr>
 

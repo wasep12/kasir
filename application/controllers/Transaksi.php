@@ -11,6 +11,7 @@ class Transaksi extends CI_Controller
 			redirect('/');
 		}
 		$this->load->model('transaksi_model');
+		$this->load->model('pengguna_model');
 	}
 
 	// Menambahkan metode untuk mengambil produk berdasarkan barcode
@@ -50,36 +51,6 @@ class Transaksi extends CI_Controller
 			"data" => $data
 		));
 	}
-
-
-
-	// public function add()
-	// {
-	// 	$produk = json_decode($this->input->post('produk'));
-	// 	$tanggal = new DateTime($this->input->post('tanggal'));
-	// 	$barcode = array();
-	// foreach ($produk as $produk) {
-	// 	$this->transaksi_model->removeStok($produk->id, $produk->stok);
-	// 	$this->transaksi_model->addTerjual($produk->id, $produk->terjual);
-	// 	array_push($barcode, $produk->id);
-	// 	}
-	// 	$data = array(
-	// 		'tanggal' => $tanggal->format('Y-m-d H:i:s'),
-	// 		'barcode' => implode(',', $barcode),
-	// 		'qty' => implode(',', $this->input->post('qty')),
-	// 		'total_bayar' => $this->input->post('total_bayar'),
-	// 		'jumlah_uang' => $this->input->post('jumlah_uang'),
-	// 		'diskon' => $this->input->post('diskon'),
-	// 		'pelanggan' => $this->input->post('pelanggan'),
-	// 		'nota' => $this->input->post('nota'),
-	// 		'kasir' => $this->session->userdata('id')
-	// 	);
-	// 	if ($this->transaksi_model->create($data)) {
-	// 		echo json_encode($this->db->insert_id());
-	// 	}
-	// 	$data = $this->input->post('form');
-	// }
-
 	public function add()
 	{
 		// Cek apakah kasir ada di session
@@ -163,48 +134,51 @@ class Transaksi extends CI_Controller
 			return; // Menghentikan eksekusi jika tidak ada data
 		}
 
+		// Mengambil data pengguna berdasarkan ID kasir
+		$kasir = $this->pengguna_model->getPengguna($transaksi->kasir);
+
+		if ($kasir) {
+			// Jika kasir ditemukan, ambil nama kasir
+			$kasirNama = $kasir->nama;
+		} else {
+			// Jika kasir tidak ditemukan, set nilai default
+			$kasirNama = 'Admin';
+		}
+
+
 		// Format tanggal jika ada
 		if ($transaksi->tanggal) {
-			// Mengubah tanggal menjadi objek DateTime
 			$tanggal = new DateTime($transaksi->tanggal);
-
-			// Format tanggal menjadi "01 Desember 2023"
-			$transaksi->tanggal = $tanggal->format('d F Y');  // 'd' untuk hari, 'F' untuk bulan (nama bulan dalam huruf), 'Y' untuk tahun
+			$transaksi->tanggal = $tanggal->format('d F Y');
 		} else {
 			$transaksi->tanggal = 'Tanggal tidak tersedia';
 		}
-
 
 		// Pisahkan barcode dan qty
 		$barcode = explode(',', $transaksi->barcode);
 		$qty = explode(',', $transaksi->qty);
 
-		// Pastikan jumlah barcode dan qty sesuai
 		if (count($barcode) !== count($qty)) {
 			echo "Jumlah barcode dan qty tidak sesuai!";
 			return;
 		}
 
-		// Ambil data produk berdasarkan barcode
 		$dataProduk = $this->transaksi_model->getProdukByBarcodes($barcode);
 		if (empty($dataProduk)) {
 			echo "Data produk tidak ditemukan!";
 			return;
 		}
 
-		// Hitung total harga produk per item
 		foreach ($dataProduk as $key => $produk) {
-			$produk->qty = $qty[$key];  // Tambahkan qty untuk produk
-			$produk->total = $produk->harga * $produk->qty;  // Hitung total harga
+			$produk->qty = $qty[$key];
+			$produk->total = $produk->harga * $produk->qty;
 		}
 
-		// Tentukan variabel total_bayar, jumlah_uang, diskon
 		$total_bayar = isset($transaksi->total_bayar) ? floatval($transaksi->total_bayar) : 0;
 		$jumlah_uang = isset($transaksi->jumlah_uang) ? floatval($transaksi->jumlah_uang) : 0;
 		$diskon = isset($transaksi->diskon) ? floatval($transaksi->diskon) : 0;
 		$kembalian = $jumlah_uang - $total_bayar;
 
-		// Kirim data ke view
 		$data = array(
 			'nota' => $transaksi->nota,
 			'tanggal' => $transaksi->tanggal,
@@ -213,12 +187,14 @@ class Transaksi extends CI_Controller
 			'bayar' => $jumlah_uang,
 			'kembalian' => $kembalian,
 			'diskon' => $diskon,
-			'kasir' => $transaksi->kasir
+			'kasir' => $transaksi->kasir,
+			'kasirNama' => $kasirNama,
 		);
 
-		// Tampilkan view
+
 		$this->load->view('cetak', $data);
 	}
+
 
 	public function penjualan_bulan()
 	{
@@ -265,56 +241,6 @@ class Transaksi extends CI_Controller
 	}
 
 }
-
-// class Peramalan extends CI_Controller
-// {
-
-// 	public function __construct()
-// 	{
-// 		parent::__construct();
-// 		$this->load->model('TrendModel');
-// 	}
-
-// 	public function index()
-// 	{
-// 		$tahun = $this->input->get('tahun') ?: date('Y'); // Ambil tahun dari input GET atau default tahun ini
-// 		$data_transaksi = $this->TrendModel->get_trend_data($tahun);
-// 		$daftar_tahun = $this->TrendModel->get_daftar_tahun(); // Dapatkan daftar tahun dari tabel
-
-// 		// Inisialisasi variabel untuk perhitungan
-// 		$n = count($data_transaksi);
-// 		$sum_x = 0;
-// 		$sum_y = 0;
-// 		$sum_x2 = 0;
-// 		$sum_xy = 0;
-
-// 		foreach ($data_transaksi as $index => $data) {
-// 			$x = $index + 1 - ($n + 1) / 2;
-// 			$y = $data['total_qty'];
-
-// 			$sum_x += $x;
-// 			$sum_y += $y;
-// 			$sum_x2 += pow($x, 2);
-// 			$sum_xy += $x * $y;
-
-// 			$data_transaksi[$index]['x'] = $x;
-// 			$data_transaksi[$index]['y'] = $y;
-// 		}
-
-// 		$b = $sum_xy / $sum_x2;
-// 		$a = $sum_y / $n;
-
-// 		foreach ($data_transaksi as $index => $data) {
-// 			$data_transaksi[$index]['forecast'] = $a + $b * $data['x'];
-// 		}
-
-// 		$this->load->view('peramalan', [
-// 			'trend_data' => $data_transaksi,
-// 			'tahun' => $tahun,
-// 			'daftar_tahun' => $daftar_tahun
-// 		]);
-// 	}
-// }
 
 
 

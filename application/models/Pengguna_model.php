@@ -1,7 +1,8 @@
 <?php
-defined('BASEPATH') OR exit('No direct script access allowed');
+defined('BASEPATH') or exit('No direct script access allowed');
 
-class Pengguna_model extends CI_Model {
+class Pengguna_model extends CI_Model
+{
 
 	private $table = 'pengguna';
 
@@ -30,12 +31,23 @@ class Pengguna_model extends CI_Model {
 
 	public function getPengguna($id)
 	{
+		// Menambahkan klausa where untuk mencocokkan ID
 		$this->db->select('id, username, nama');
 		$this->db->where('id', $id);
-		return $this->db->get($this->table);
+
+		// Mengambil hasil query
+		$query = $this->db->get($this->table);
+
+		// Memeriksa apakah ada data yang ditemukan, dan mengembalikan hasilnya
+		if ($query->num_rows() > 0) {
+			return $query->row(); // Mengembalikan satu baris data sebagai objek
+		} else {
+			return null; // Jika tidak ada data ditemukan
+		}
 	}
 
-	public function search($search="")
+
+	public function search($search = "")
 	{
 		$this->db->like('kategori', $search);
 		return $this->db->get($this->table)->result();

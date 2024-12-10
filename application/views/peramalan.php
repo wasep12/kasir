@@ -49,16 +49,6 @@
                                     <div class="mt-4">
                                         <canvas id="trendChart" width="400" height="200"></canvas>
                                     </div>
-
-                                    <h4 class="mt-5">Rumus Peramalan:</h4>
-                                    <p>Y = a + bX</p>
-                                    <p>Dimana:</p>
-                                    <ul>
-                                        <li>Y = Peramalan Tren</li>
-                                        <li>a = Intercept (nilai tetap)</li>
-                                        <li>b = Slope (kemiringan garis tren)</li>
-                                        <li>X = Waktu (bulan atau periode)</li>
-                                    </ul>
                                 </div>
                             </div>
                         </div>
@@ -73,16 +63,17 @@
                             <thead class="bg-primary text-white">
                                 <tr>
                                     <th>Bulan</th>
-                                    <th>X (Waktu)</th>
-                                    <th>Y (Penjualan)</th>
-                                    <th>X<sup>2</sup></th>
-                                    <th>XY</th>
+                                    <th>\(\Sigma X\) (Waktu)</th>
+                                    <th>\(\Sigma Y\) (Penjualan)</th>
+                                    <th>\(\Sigma X^2\)</th>
+                                    <th>\(\Sigma XY\)</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <?php foreach ($peramalan_data['data'] as $row) : ?>
                                 <tr>
-                                    <td><?= $row['bulan']; ?></td>
+                                    <!-- Mengonversi angka bulan menjadi nama bulan -->
+                                    <td><?= $bulan[$row['bulan'] - 1]; ?></td>
                                     <td><?= $row['x']; ?></td>
                                     <td><?= $row['y']; ?></td>
                                     <td><?= $row['x2']; ?></td>
@@ -90,33 +81,58 @@
                                 </tr>
                                 <?php endforeach; ?>
                             </tbody>
+
                         </table>
 
-                        <div class="container mt-4">
-                            <h4>Hasil Perhitungan Least Square:</h4>
-                            <p>Persamaan garis tren yang dihasilkan adalah:</p>
+                        <div class="container mt-2">
+                            <h4 class="mt-2">Rumus Perhitungan Trend:</h4>
                             <p>\( Y = a + bX \)</p>
+                            <p>Dimana:</p>
+                            <ul>
+                                <li>Y = Peramalan Tren</li>
+                                <li>a = Intercept (nilai tetap)</li>
+                                <li>b = Slope (kemiringan garis tren)</li>
+                                <li>X = Waktu (bulan atau periode)</li>
+                            </ul>
+                            <h4>Hasil Perhitungan Least Square:</h4>
+                            <p>Berikut adalah data yang digunakan dalam perhitungan:</p>
                             <ul>
                                 <li>
-                                    Konstanta \( a = \frac{\Sigma Y}{n} - b \cdot \frac{\Sigma X}{n} \)
-                                    <br>
-                                    Hasil perhitungan: \( a = <?= round($peramalan_data['a'], 2); ?> \)
+                                    \(\Sigma X\): Jumlah total dari nilai variabel independen (\(X\)), yang biasanya
+                                    mewakili periode waktu atau urutan data.
                                 </li>
                                 <li>
-                                    Koefisien \( b = \frac{\Sigma XY}{\Sigma X^2} \)
-                                    <br>
-                                    Hasil perhitungan: \( b = <?= round($peramalan_data['b'], 2); ?> \)
+                                    \(\Sigma Y\): Jumlah total dari nilai variabel dependen (\(Y\)), yaitu data yang
+                                    diamati atau diukur pada periode tertentu.
+                                </li>
+                                <li>
+                                    \(\Sigma X^2\): Jumlah total dari nilai kuadrat variabel independen (\(X^2\)),
+                                    digunakan untuk menghitung koefisien dalam model.
+                                </li>
+                                <li>
+                                    \(\Sigma XY\): Jumlah hasil perkalian antara nilai variabel independen (\(X\))
+                                    dan variabel dependen (\(Y\)) untuk setiap data.
                                 </li>
                             </ul>
+                            <p>Hasil perhitungan menggunakan data di atas menghasilkan:</p>
+                            <ul>
+                                <li>
+                                    Konstanta (\(a\)): <?= round($peramalan_data['a'], 2); ?>
+                                </li>
+                                <li>
+                                    Koefisien (\(b\)): <?= round($peramalan_data['b'], 2); ?>
+                                </li>
+                            </ul>
+                            <p>Data ini diolah untuk menghasilkan persamaan garis tren \( Y = a + bX \) yang digunakan
+                                untuk memperkirakan nilai \(Y\) berdasarkan nilai \(X\).</p>
                         </div>
 
                         <?php else : ?>
                         <div class="alert alert-warning">
-                            Data untuk tahun <?= $tahun; ?> tidak ditemukan.
+                            Data untuk tahun <?= $tahun; ?> tidak ditemukan. Silakan periksa kembali data yang tersedia.
                         </div>
                         <?php endif; ?>
-                    </div>
-                </div>
+
             </section>
         </div>
     </div>
@@ -170,14 +186,21 @@
     var trendChart = new Chart(ctx, {
         type: 'line',
         data: {
-            labels: bulan,
-            datasets: datasets
+            labels: bulan, // Label bulan
+            datasets: datasets // Dataset peramalan
         },
         options: {
             responsive: true,
             scales: {
                 y: {
-                    beginAtZero: true
+                    beginAtZero: true, // Mulai dari 0
+                    ticks: {
+                        // Mengatur agar sumbu y menggunakan angka bulat
+                        callback: function(value) {
+                            // Memastikan angka yang tampil adalah bulat (tanpa desimal)
+                            return value % 1 === 0 ? value : '';
+                        }
+                    }
                 }
             }
         }
