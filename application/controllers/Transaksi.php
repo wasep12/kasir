@@ -209,8 +209,8 @@ class Transaksi extends CI_Controller
 			'nota' => $transaksi->nota,
 			'tanggal' => $transaksi->tanggal,
 			'produk' => $dataProduk,
-			'total_bayar' => $total_bayar,   // Pastikan total_bayar ada
-			'bayar' => $jumlah_uang,         // Pastikan jumlah_uang ada
+			'total_bayar' => $total_bayar,
+			'bayar' => $jumlah_uang,
 			'kembalian' => $kembalian,
 			'diskon' => $diskon,
 			'kasir' => $transaksi->kasir

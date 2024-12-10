@@ -180,10 +180,20 @@ class Transaksi_model extends CI_Model
     ');
 		$this->db->from('transaksi');
 		$this->db->join('pelanggan', 'transaksi.pelanggan = pelanggan.id', 'left');
-		$this->db->join('produk', 'transaksi.barcode = produk.barcode', 'left'); // Update kolom nama_produk
+		$this->db->join('produk', 'transaksi.barcode = produk.barcode', 'left');
 		$query = $this->db->get();
+
+		// Debugging untuk memastikan data yang diambil
+		if ($query->num_rows() > 0) {
+			// Menampilkan hasil query ke log
+			error_log(print_r($query->result(), true)); // Menampilkan hasil ke log error
+		} else {
+			error_log("Tidak ada data ditemukan.");
+		}
+
 		return $query->result();
 	}
+
 
 
 	public function getName($barcode)

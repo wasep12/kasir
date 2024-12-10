@@ -110,7 +110,7 @@
 			<p><?php echo $this->session->userdata('toko')->alamat; ?></p>
 			<p><strong>Nota:</strong> <?php echo $nota ?></p>
 			<p><strong>Tanggal:</strong> <?php echo $tanggal ?></p>
-			<p><strong>Kasir:</strong> <?php echo $kasir ?></p>
+			<p><strong>Kasir:</strong> <?php echo $kasir; ?></p>
 
 			<hr>
 
@@ -154,13 +154,9 @@
 				<tr>
 					<td class="text-start" colspan="3"><strong>Jumlah Uang:</strong></td>
 					<td class="text-end">
-						<?php
-						if (isset($jumlah_uang) && is_numeric($jumlah_uang)) {
-							echo number_format($jumlah_uang, 2);
-						} else {
-							echo '0.00'; // Nilai default jika jumlah_uang tidak ada atau bukan angka
-						}
-						?>
+						<?php echo isset($bayar) ? number_format($bayar, 2) : '0.00'; ?>
+					</td>
+
 					</td>
 
 				</tr>
