@@ -82,6 +82,15 @@ class Transaksi extends CI_Controller
 
 	public function add()
 	{
+		// Cek apakah kasir ada di session
+		$kasir = $this->session->userdata('kasir');
+
+		// Jika kasir tidak ada, kirimkan respons error
+		if (empty($kasir)) {
+			echo json_encode(['success' => false, 'message' => 'Kasir tidak terdaftar dalam session']);
+			return;
+		}
+
 		// Mengambil data produk yang dikirimkan dalam format JSON
 		$produk = json_decode($this->input->post('produk'));
 		$tanggal = new DateTime($this->input->post('tanggal'));
@@ -108,7 +117,6 @@ class Transaksi extends CI_Controller
 			array_push($qty, $item->qty);
 		}
 
-
 		// Menyusun data transaksi yang akan disimpan
 		$data = array(
 			'tanggal' => $tanggal->format('d F Y'),  // Format tanggal transaksi
@@ -120,17 +128,21 @@ class Transaksi extends CI_Controller
 			'diskon' => $this->input->post('diskon'),  // Diskon
 			'pelanggan' => $this->input->post('pelanggan'),  // Nama pelanggan
 			'nota' => $this->input->post('nota'),  // Nomor nota
-			'kasir' => $this->session->userdata('kasir')
+			'kasir' => $kasir  // Pastikan kasir ada sebelum memasukkan data ke database
 		);
 
-		// Menyimpan data transaksi ke dalam database
-		if ($this->transaksi_model->create($data)) {
-			echo json_encode($this->db->insert_id());  // Mengembalikan ID transaksi yang baru saja dimasukkan
-		} else {
-			echo json_encode(['success' => false, 'message' => 'Transaksi gagal']);  // Jika transaksi gagal
+		// Cek apakah data berhasil disimpan
+		try {
+			if ($this->transaksi_model->create($data)) {
+				echo json_encode(['success' => true, 'transaction_id' => $this->db->insert_id()]);
+			} else {
+				echo json_encode(['success' => false, 'message' => 'Transaksi gagal']);
+			}
+		} catch (Exception $e) {
+			// Menangani error jika ada exception pada proses penyimpanan
+			echo json_encode(['success' => false, 'message' => 'Terjadi kesalahan: ' . $e->getMessage()]);
 		}
 	}
-
 
 	public function delete()
 	{
