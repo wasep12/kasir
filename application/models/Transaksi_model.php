@@ -3,6 +3,27 @@ defined('BASEPATH') or exit('No direct script access allowed');
 
 class Transaksi_model extends CI_Model
 {
+	public function __construct()
+	{
+		parent::__construct();
+		$this->load->model('Transaksi_model', 'transaksi_model'); // Pastikan model dimuat
+	}
+	public function getById($id)
+	{
+		// Query untuk mendapatkan data transaksi berdasarkan ID
+		return $this->db->get_where('transaksi', ['id' => $id])->row();
+	}
+	public function getProdukByBarcodes($barcodes)
+	{
+		if (empty($barcodes)) {
+			return [];
+		}
+
+		// Menggunakan where_in untuk mencari semua barcode yang cocok
+		$this->db->where_in('barcode', $barcodes);
+		return $this->db->get('produk')->result();
+	}
+
 
 	private $table = 'transaksi';
 
@@ -12,7 +33,6 @@ class Transaksi_model extends CI_Model
 			->where('barcode', $barcode)              // Berdasarkan barcode
 			->update('produk');                       // Tabel produk
 	}
-
 	public function addTerjual($barcode, $qty)
 	{
 		$this->db->set('terjual', 'terjual + ' . (int) $qty, FALSE) // Tambahkan jumlah terjual
@@ -231,6 +251,7 @@ class Transaksi_model extends CI_Model
 // 		return []; // Kembalikan array kosong jika tidak ada data
 // 	}
 // }
+
 
 /* End of file Transaksi_model.php */
 /* Location: ./application/models/Transaksi_model.php */

@@ -13,6 +13,7 @@ class Transaksi extends CI_Controller
 		$this->load->model('transaksi_model');
 	}
 
+	// Menambahkan metode untuk mengambil produk berdasarkan barcode
 	public function index()
 	{
 		$this->load->view('transaksi');
@@ -37,8 +38,7 @@ class Transaksi extends CI_Controller
 				'jumlah_uang' => $row->jumlah_uang,
 				'diskon' => $row->diskon,
 				'pelanggan' => $row->pelanggan,
-				'action' => '<button class="btn btn-success btn-sm" onclick="print(' . $row->id . ')">Print</button>
-                         <button class="btn btn-danger btn-sm" onclick="remove(' . $row->id . ')">Delete</button>'
+				'action' => '<a class="btn btn-sm btn-success" href="' . site_url('transaksi/cetak/') . $row->id . '">Print</a> <button class="btn btn-sm btn-danger" onclick="remove(' . $row->id . ')">Delete</button>'
 			);
 		}
 
@@ -111,7 +111,7 @@ class Transaksi extends CI_Controller
 
 		// Menyusun data transaksi yang akan disimpan
 		$data = array(
-			'tanggal' => $tanggal->format('Y-m-d H:i:s'),  // Format tanggal transaksi
+			'tanggal' => $tanggal->format('d F Y'),  // Format tanggal transaksi
 			'barcode' => implode(',', $barcode),  // Menggabungkan barcode menjadi satu string
 			'nama_produk' => implode(',', $nama_produk),  // Menggabungkan nama produk menjadi satu string
 			'qty' => implode(',', $qty),  // Menggabungkan jumlah produk menjadi satu string
@@ -120,7 +120,7 @@ class Transaksi extends CI_Controller
 			'diskon' => $this->input->post('diskon'),  // Diskon
 			'pelanggan' => $this->input->post('pelanggan'),  // Nama pelanggan
 			'nota' => $this->input->post('nota'),  // Nomor nota
-			'kasir' => $this->session->userdata('id')  // ID kasir
+			'kasir' => $this->session->userdata('kasir')
 		);
 
 		// Menyimpan data transaksi ke dalam database
@@ -142,29 +142,69 @@ class Transaksi extends CI_Controller
 
 	public function cetak($id)
 	{
-		$produk = $this->transaksi_model->getAll($id);
+		// Ambil data transaksi berdasarkan ID
+		$transaksi = $this->transaksi_model->getById($id);
 
-		$tanggal = new DateTime($produk->tanggal);
-		$barcode = explode(',', $produk->barcode);
-		$qty = explode(',', $produk->qty);
-
-		$produk->tanggal = $tanggal->format('d m Y H:i:s');
-
-		$dataProduk = $this->transaksi_model->getName($barcode);
-		foreach ($dataProduk as $key => $value) {
-			$value->total = $qty[$key];
-			$value->harga = $value->harga * $qty[$key];
+		// Pastikan data transaksi ada
+		if (!$transaksi) {
+			echo "Data transaksi tidak ditemukan!";
+			return; // Menghentikan eksekusi jika tidak ada data
 		}
 
+		// Format tanggal jika ada
+		if ($transaksi->tanggal) {
+			// Mengubah tanggal menjadi objek DateTime
+			$tanggal = new DateTime($transaksi->tanggal);
+
+			// Format tanggal menjadi "01 Desember 2023"
+			$transaksi->tanggal = $tanggal->format('d F Y');  // 'd' untuk hari, 'F' untuk bulan (nama bulan dalam huruf), 'Y' untuk tahun
+		} else {
+			$transaksi->tanggal = 'Tanggal tidak tersedia';
+		}
+
+
+		// Pisahkan barcode dan qty
+		$barcode = explode(',', $transaksi->barcode);
+		$qty = explode(',', $transaksi->qty);
+
+		// Pastikan jumlah barcode dan qty sesuai
+		if (count($barcode) !== count($qty)) {
+			echo "Jumlah barcode dan qty tidak sesuai!";
+			return;
+		}
+
+		// Ambil data produk berdasarkan barcode
+		$dataProduk = $this->transaksi_model->getProdukByBarcodes($barcode);
+		if (empty($dataProduk)) {
+			echo "Data produk tidak ditemukan!";
+			return;
+		}
+
+		// Hitung total harga produk per item
+		foreach ($dataProduk as $key => $produk) {
+			$produk->qty = $qty[$key];  // Tambahkan qty untuk produk
+			$produk->total = $produk->harga * $produk->qty;  // Hitung total harga
+		}
+
+		// Tentukan variabel total_bayar, jumlah_uang, diskon
+		$total_bayar = isset($transaksi->total_bayar) ? floatval($transaksi->total_bayar) : 0;
+		$jumlah_uang = isset($transaksi->jumlah_uang) ? floatval($transaksi->jumlah_uang) : 0;
+		$diskon = isset($transaksi->diskon) ? floatval($transaksi->diskon) : 0;
+		$kembalian = $jumlah_uang - $total_bayar;
+
+		// Kirim data ke view
 		$data = array(
-			'nota' => $produk->nota,
-			'tanggal' => $produk->tanggal,
+			'nota' => $transaksi->nota,
+			'tanggal' => $transaksi->tanggal,
 			'produk' => $dataProduk,
-			'total' => $produk->total_bayar,
-			'bayar' => $produk->jumlah_uang,
-			'kembalian' => $produk->jumlah_uang - $produk->total_bayar,
-			'kasir' => $produk->kasir
+			'total_bayar' => $total_bayar,   // Pastikan total_bayar ada
+			'bayar' => $jumlah_uang,         // Pastikan jumlah_uang ada
+			'kembalian' => $kembalian,
+			'diskon' => $diskon,
+			'kasir' => $transaksi->kasir
 		);
+
+		// Tampilkan view
 		$this->load->view('cetak', $data);
 	}
 

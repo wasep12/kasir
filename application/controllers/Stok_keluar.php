@@ -1,12 +1,13 @@
 <?php
-defined('BASEPATH') OR exit('No direct script access allowed');
+defined('BASEPATH') or exit('No direct script access allowed');
 
-class Stok_keluar extends CI_Controller {
+class Stok_keluar extends CI_Controller
+{
 
 	public function __construct()
 	{
 		parent::__construct();
-		if ($this->session->userdata('status') !== 'login' ) {
+		if ($this->session->userdata('status') !== 'login') {
 			redirect('/');
 		}
 		$this->load->model('stok_keluar_model');
@@ -45,7 +46,7 @@ class Stok_keluar extends CI_Controller {
 		$id = $this->input->post('barcode');
 		$jumlah = $this->input->post('jumlah');
 		$stok = $this->stok_keluar_model->getStok($id)->stok;
-		$rumus = max($stok - $jumlah,0);
+		$rumus = max($stok - $jumlah, 0);
 		$addStok = $this->stok_keluar_model->addStok($id, $rumus);
 		if ($addStok) {
 			$tanggal = new DateTime($this->input->post('tanggal'));
@@ -64,11 +65,21 @@ class Stok_keluar extends CI_Controller {
 	public function get_barcode()
 	{
 		$barcode = $this->input->post('barcode');
-		$kategori = $this->stok_keluar_model->getKategori($id);
-		if ($kategori->row()) {
-			echo json_encode($kategori->row());
+
+		if ($barcode) {
+			// Assuming the model method expects barcode
+			$kategori = $this->stok_masuk_model->getKategori($barcode);
+
+			if ($kategori->row()) {
+				echo json_encode($kategori->row());
+			} else {
+				echo json_encode(['error' => 'Kategori not found']);
+			}
+		} else {
+			echo json_encode(['error' => 'No barcode provided']);
 		}
 	}
+
 
 }
 

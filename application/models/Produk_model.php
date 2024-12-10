@@ -1,8 +1,8 @@
 <?php
-defined('BASEPATH') OR exit('No direct script access allowed');
+defined('BASEPATH') or exit('No direct script access allowed');
 
-class Produk_model extends CI_Model {
-
+class Produk_model extends CI_Model
+{
 	private $table = 'produk';
 
 	public function create($data)
@@ -41,7 +41,7 @@ class Produk_model extends CI_Model {
 		return $this->db->get();
 	}
 
-	public function getBarcode($search='')
+	public function getBarcode($search = '')
 	{
 		$this->db->select('produk.id, produk.barcode');
 		$this->db->like('barcode', $search);
