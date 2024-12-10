@@ -27,8 +27,8 @@
                     <div class="row">
                         <div class="col-12">
                             <div class="card">
-                                <div class="card-header bg-success text-white">
-                                    <h3 class="card-title">Penjualan Trend Pertahun</h3>
+                                <div class="card-header bg-primary text-white">
+                                    <h3 class="card-title">Trend Penjualan Pertahun</h3>
                                 </div>
                                 <div class="card-body">
                                     <!-- Form untuk memilih tahun -->
@@ -64,58 +64,59 @@
                         </div>
                     </div>
                 </div>
-                <div class="container mt-5">
-                    <h2>Perhitungan Least Square untuk Tahun <?= $tahun; ?></h2>
+                <div class="container-fluid">
+                    <div class="card mt-3 p-3">
+                        <h3 class="text-center mb-3">Perhitungan Least Square untuk Tahun <?= $tahun; ?></h3>
 
-                    <?php if (!empty($peramalan_data['data'])) : ?>
-                    <table class="table table-bordered table-striped">
-                        <thead>
-                            <tr>
-                                <th>Bulan</th>
-                                <th>X</th>
-                                <th>Y (Penjualan)</th>
-                                <th>X<sup>2</sup></th>
-                                <th>XY</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <?php foreach ($peramalan_data['data'] as $row) : ?>
-                            <tr>
-                                <td><?= $row['bulan']; ?></td>
-                                <td><?= $row['x']; ?></td>
-                                <td><?= $row['y']; ?></td>
-                                <td><?= $row['x2']; ?></td>
-                                <td><?= $row['xy']; ?></td>
-                            </tr>
-                            <?php endforeach; ?>
-                        </tbody>
-                    </table>
+                        <?php if (!empty($peramalan_data['data'])) : ?>
+                        <table class="table table-bordered table-striped">
+                            <thead class="bg-primary text-white">
+                                <tr>
+                                    <th>Bulan</th>
+                                    <th>X (Waktu)</th>
+                                    <th>Y (Penjualan)</th>
+                                    <th>X<sup>2</sup></th>
+                                    <th>XY</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php foreach ($peramalan_data['data'] as $row) : ?>
+                                <tr>
+                                    <td><?= $row['bulan']; ?></td>
+                                    <td><?= $row['x']; ?></td>
+                                    <td><?= $row['y']; ?></td>
+                                    <td><?= $row['x2']; ?></td>
+                                    <td><?= $row['xy']; ?></td>
+                                </tr>
+                                <?php endforeach; ?>
+                            </tbody>
+                        </table>
 
-                    <div class="container mt-4">
-                        <h4>Hasil Perhitungan Least Square:</h4>
-                        <p>Persamaan garis tren yang dihasilkan adalah:</p>
-                        <p>\( Y = a + bX \)</p>
-                        <ul>
-                            <li>
-                                Konstanta \( a = \frac{\Sigma Y}{n} - b \cdot \frac{\Sigma X}{n} \)
-                                <br>
-                                Hasil perhitungan: \( a = <?= round($peramalan_data['a'], 2); ?> \)
-                            </li>
-                            <li>
-                                Koefisien \( b = \frac{\Sigma XY}{\Sigma X^2} \)
-                                <br>
-                                Hasil perhitungan: \( b = <?= round($peramalan_data['b'], 2); ?> \)
-                            </li>
-                        </ul>
+                        <div class="container mt-4">
+                            <h4>Hasil Perhitungan Least Square:</h4>
+                            <p>Persamaan garis tren yang dihasilkan adalah:</p>
+                            <p>\( Y = a + bX \)</p>
+                            <ul>
+                                <li>
+                                    Konstanta \( a = \frac{\Sigma Y}{n} - b \cdot \frac{\Sigma X}{n} \)
+                                    <br>
+                                    Hasil perhitungan: \( a = <?= round($peramalan_data['a'], 2); ?> \)
+                                </li>
+                                <li>
+                                    Koefisien \( b = \frac{\Sigma XY}{\Sigma X^2} \)
+                                    <br>
+                                    Hasil perhitungan: \( b = <?= round($peramalan_data['b'], 2); ?> \)
+                                </li>
+                            </ul>
+                        </div>
+
+                        <?php else : ?>
+                        <div class="alert alert-warning">
+                            Data untuk tahun <?= $tahun; ?> tidak ditemukan.
+                        </div>
+                        <?php endif; ?>
                     </div>
-
-                    <?php else : ?>
-                    <div class="alert alert-warning">
-                        Data untuk tahun <?= $tahun; ?> tidak ditemukan.
-                    </div>
-                    <?php endif; ?>
                 </div>
-
             </section>
         </div>
     </div>

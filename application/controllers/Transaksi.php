@@ -20,29 +20,38 @@ class Transaksi extends CI_Controller
 
 	public function read()
 	{
-		// header('Content-type: application/json');
-		if ($this->transaksi_model->read()->num_rows() > 0) {
-			foreach ($this->transaksi_model->read()->result() as $transaksi) {
-				$barcode = explode(',', $transaksi->barcode);
-				$tanggal = new DateTime($transaksi->tanggal);
-				$data[] = array(
-					'tanggal' => $tanggal->format('d-m-Y H:i:s'),
-					'nama_produk' => '<table>' . $this->transaksi_model->getProduk($barcode, $transaksi->qty) . '</table>',
-					'total_bayar' => $transaksi->total_bayar,
-					'jumlah_uang' => $transaksi->jumlah_uang,
-					'diskon' => $transaksi->diskon,
-					'pelanggan' => $transaksi->pelanggan,
-					'action' => '<a class="btn btn-sm btn-success" href="' . site_url('transaksi/cetak/') . $transaksi->id . '">Print</a> <button class="btn btn-sm btn-danger" onclick="remove(' . $transaksi->id . ')">Delete</button>'
-				);
-			}
-		} else {
-			$data = array();
+		// Ambil data transaksi dari model
+		$this->load->model('Transaksi_model');
+		$result = $this->Transaksi_model->getAll();
+
+		// Buat array data yang akan dikirim ke DataTables
+		$data = array();
+		foreach ($result as $row) {
+			$data[] = array(
+				'id' => $row->id,
+				'tanggal' => $row->tanggal,
+				'barcode' => $row->barcode,
+				'nama_produk' => $row->nama_produk,
+				'qty' => $row->qty,
+				'total_bayar' => $row->total_bayar,
+				'jumlah_uang' => $row->jumlah_uang,
+				'diskon' => $row->diskon,
+				'pelanggan' => $row->pelanggan,
+				'action' => '<button class="btn btn-success btn-sm" onclick="print(' . $row->id . ')">Print</button>
+                         <button class="btn btn-danger btn-sm" onclick="remove(' . $row->id . ')">Delete</button>'
+			);
 		}
-		$transaksi = array(
-			'data' => $data
-		);
-		echo json_encode($transaksi);
+
+		// Kirim data dalam format JSON
+		echo json_encode(array(
+			"draw" => isset($_POST['draw']) ? $_POST['draw'] : 0, // Periksa apakah 'draw' ada
+			"recordsTotal" => count($data),
+			"recordsFiltered" => count($data),
+			"data" => $data
+		));
 	}
+
+
 
 	// public function add()
 	// {
@@ -205,55 +214,55 @@ class Transaksi extends CI_Controller
 
 }
 
-class Peramalan extends CI_Controller
-{
+// class Peramalan extends CI_Controller
+// {
 
-	public function __construct()
-	{
-		parent::__construct();
-		$this->load->model('TrendModel');
-	}
+// 	public function __construct()
+// 	{
+// 		parent::__construct();
+// 		$this->load->model('TrendModel');
+// 	}
 
-	public function index()
-	{
-		$tahun = $this->input->get('tahun') ?: date('Y'); // Ambil tahun dari input GET atau default tahun ini
-		$data_transaksi = $this->TrendModel->get_trend_data($tahun);
-		$daftar_tahun = $this->TrendModel->get_daftar_tahun(); // Dapatkan daftar tahun dari tabel
+// 	public function index()
+// 	{
+// 		$tahun = $this->input->get('tahun') ?: date('Y'); // Ambil tahun dari input GET atau default tahun ini
+// 		$data_transaksi = $this->TrendModel->get_trend_data($tahun);
+// 		$daftar_tahun = $this->TrendModel->get_daftar_tahun(); // Dapatkan daftar tahun dari tabel
 
-		// Inisialisasi variabel untuk perhitungan
-		$n = count($data_transaksi);
-		$sum_x = 0;
-		$sum_y = 0;
-		$sum_x2 = 0;
-		$sum_xy = 0;
+// 		// Inisialisasi variabel untuk perhitungan
+// 		$n = count($data_transaksi);
+// 		$sum_x = 0;
+// 		$sum_y = 0;
+// 		$sum_x2 = 0;
+// 		$sum_xy = 0;
 
-		foreach ($data_transaksi as $index => $data) {
-			$x = $index + 1 - ($n + 1) / 2;
-			$y = $data['total_qty'];
+// 		foreach ($data_transaksi as $index => $data) {
+// 			$x = $index + 1 - ($n + 1) / 2;
+// 			$y = $data['total_qty'];
 
-			$sum_x += $x;
-			$sum_y += $y;
-			$sum_x2 += pow($x, 2);
-			$sum_xy += $x * $y;
+// 			$sum_x += $x;
+// 			$sum_y += $y;
+// 			$sum_x2 += pow($x, 2);
+// 			$sum_xy += $x * $y;
 
-			$data_transaksi[$index]['x'] = $x;
-			$data_transaksi[$index]['y'] = $y;
-		}
+// 			$data_transaksi[$index]['x'] = $x;
+// 			$data_transaksi[$index]['y'] = $y;
+// 		}
 
-		$b = $sum_xy / $sum_x2;
-		$a = $sum_y / $n;
+// 		$b = $sum_xy / $sum_x2;
+// 		$a = $sum_y / $n;
 
-		foreach ($data_transaksi as $index => $data) {
-			$data_transaksi[$index]['forecast'] = $a + $b * $data['x'];
-		}
+// 		foreach ($data_transaksi as $index => $data) {
+// 			$data_transaksi[$index]['forecast'] = $a + $b * $data['x'];
+// 		}
 
-		$this->load->view('peramalan', [
-			'trend_data' => $data_transaksi,
-			'tahun' => $tahun,
-			'daftar_tahun' => $daftar_tahun
-		]);
-	}
-}
+// 		$this->load->view('peramalan', [
+// 			'trend_data' => $data_transaksi,
+// 			'tahun' => $tahun,
+// 			'daftar_tahun' => $daftar_tahun
+// 		]);
+// 	}
+// }
 
 
 

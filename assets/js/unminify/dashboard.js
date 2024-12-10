@@ -71,63 +71,63 @@ $.ajax({
     }
 });
 
-$.ajax({
-    url: penjualan_tahunUrl, // URL API untuk data penjualan per tahun
-    type: "post",
-    data: {
-        year: getYear() // Fungsi untuk mendapatkan tahun yang diinginkan
-    },
-    dataType: "json",
-    success: res => {
-        var el = $("#tahunIni").get(0).getContext("2d");
-        new Chart(el, {
-            type: "bar",
-            data: {
-                labels: [
-                    "Januari", "Februari", "Maret", "April", "Mei",
-                    "Juni", "Juli", "Agustus", "September",
-                    "Oktober", "November", "Desember"
-                ],
-                datasets: [{
-                    label: "Total Penjualan",
-                    backgroundColor: "rgba(60,141,188,0.9)",
-                    borderColor: "rgba(60,141,188,0.8)",
-                    pointRadius: false,
-                    pointColor: "#3b8bba",
-                    pointStrokeColor: "rgba(60,141,188,1)",
-                    pointHighlightFill: "#fff",
-                    pointHighlightStroke: "rgba(60,141,188,1)",
-                    data: res // Data penjualan per bulan (12 data)
-                }]
-            },
-            options: {
-                maintainAspectRatio: false,
-                responsive: true,
-                legend: {
-                    display: true // Tampilkan legenda
-                },
-                scales: {
-                    xAxes: [{
-                        gridLines: {
-                            display: false
-                        }
-                    }],
-                    yAxes: [{
-                        gridLines: {
-                            display: true
-                        },
-                        ticks: {
-                            beginAtZero: true // Skala mulai dari nol
-                        }
-                    }]
-                }
-            }
-        });
-    },
-    error: err => {
-        console.log(err);
-    }
-});
+// $.ajax({
+//     url: penjualan_tahunUrl, // URL API untuk data penjualan per tahun
+//     type: "post",
+//     data: {
+//         year: getYear() // Fungsi untuk mendapatkan tahun yang diinginkan
+//     },
+//     dataType: "json",
+//     success: res => {
+//         var el = $("#tahunIni").get(0).getContext("2d");
+//         new Chart(el, {
+//             type: "bar",
+//             data: {
+//                 labels: [
+//                     "Januari", "Februari", "Maret", "April", "Mei",
+//                     "Juni", "Juli", "Agustus", "September",
+//                     "Oktober", "November", "Desember"
+//                 ],
+//                 datasets: [{
+//                     label: "Total Penjualan",
+//                     backgroundColor: "rgba(60,141,188,0.9)",
+//                     borderColor: "rgba(60,141,188,0.8)",
+//                     pointRadius: false,
+//                     pointColor: "#3b8bba",
+//                     pointStrokeColor: "rgba(60,141,188,1)",
+//                     pointHighlightFill: "#fff",
+//                     pointHighlightStroke: "rgba(60,141,188,1)",
+//                     data: res // Data penjualan per bulan (12 data)
+//                 }]
+//             },
+//             options: {
+//                 maintainAspectRatio: false,
+//                 responsive: true,
+//                 legend: {
+//                     display: true // Tampilkan legenda
+//                 },
+//                 scales: {
+//                     xAxes: [{
+//                         gridLines: {
+//                             display: false
+//                         }
+//                     }],
+//                     yAxes: [{
+//                         gridLines: {
+//                             display: true
+//                         },
+//                         ticks: {
+//                             beginAtZero: true // Skala mulai dari nol
+//                         }
+//                     }]
+//                 }
+//             }
+//         });
+//     },
+//     error: err => {
+//         console.log(err);
+//     }
+// });
 
 
 $(document).ready(function () {

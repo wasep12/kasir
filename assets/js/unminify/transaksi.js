@@ -205,8 +205,6 @@ function add() {
     });
 }
 
-
-
 function kembalian() {
     let total = $("#total").html(),
         jumlah_uang = $('[name="jumlah_uang"').val(),

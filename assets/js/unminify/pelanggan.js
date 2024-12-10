@@ -50,26 +50,34 @@ function remove(id) {
     Swal.fire({
         title: "Hapus",
         text: "Hapus data ini?",
-        type: "warning",
-        showCancelButton: true
-    }).then(() => {
-        $.ajax({
-            url: deleteUrl,
-            type: "post",
-            dataType: "json",
-            data: {
-                id: id
-            },
-            success: a => {
-                Swal.fire("Sukses", "Sukses Menghapus Data", "success");
-                reloadTable()
-            },
-            error: a => {
-                console.log(a)
-            }
-        })
-    })
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonText: "Ya, hapus!",
+        cancelButtonText: "Batal"
+    }).then((result) => {
+        // Memeriksa apakah tombol "Ya" ditekan
+        if (result.isConfirmed) {
+            $.ajax({
+                url: deleteUrl,
+                type: "POST",
+                dataType: "json",
+                data: { id: id },
+                success: (a) => {
+                    Swal.fire("Sukses", "Sukses Menghapus Data", "success");
+                    reloadTable(); // Reload tabel setelah penghapusan
+                },
+                error: (a) => {
+                    console.log(a);
+                    Swal.fire("Gagal", "Terjadi kesalahan saat menghapus data", "error");
+                }
+            });
+        } else {
+            // Jika tombol Cancel ditekan, tidak terjadi apa-apa
+            Swal.fire("Dibatalkan", "Data tidak dihapus", "info");
+        }
+    });
 }
+
 
 function editData() {
     $.ajax({
