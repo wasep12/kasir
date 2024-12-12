@@ -1,14 +1,13 @@
 -- phpMyAdmin SQL Dump
--- version 4.8.4
+-- version 5.2.0
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Dec 02, 2024 at 01:43 PM
--- Server version: 10.1.37-MariaDB
--- PHP Version: 5.6.39
+-- Generation Time: Dec 12, 2024 at 05:00 PM
+-- Server version: 10.4.25-MariaDB
+-- PHP Version: 7.4.30
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
-SET AUTOCOMMIT = 0;
 START TRANSACTION;
 SET time_zone = "+00:00";
 
@@ -61,7 +60,6 @@ CREATE TABLE `pelanggan` (
 --
 
 INSERT INTO `pelanggan` (`id`, `nama`, `jenis_kelamin`, `alamat`, `telepon`) VALUES
-(1, 'Adam', 'Pria', 'Seoul', '081237483291'),
 (2, 'Rahma', 'Wanita', 'Banjarnegara', '085463728374'),
 (3, 'mumu', 'Pria', 'kutruk', '0822132781718');
 
@@ -91,6 +89,19 @@ INSERT INTO `pengguna` (`id`, `username`, `password`, `nama`, `role`) VALUES
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `penjualan`
+--
+
+CREATE TABLE `penjualan` (
+  `id` int(11) NOT NULL,
+  `tanggal` date NOT NULL,
+  `nama_produk` varchar(255) NOT NULL,
+  `qty` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `produk`
 --
 
@@ -110,8 +121,8 @@ CREATE TABLE `produk` (
 --
 
 INSERT INTO `produk` (`id`, `barcode`, `nama_produk`, `kategori`, `satuan`, `harga`, `stok`, `terjual`) VALUES
-(1, 'KAOS-PNDK-002', 'Kaos warna biru pendek 30s', 2, 2, '55000', 0, '2'),
-(2, 'KAOS-PNDK-001', 'Kaos warna hitam pendek 30s', 1, 2, '18000', 5, '4');
+(1, 'KAOS-PNDK-002', 'Kaos warna biru pendek 30s', 2, 2, '55000', 1, '44'),
+(2, 'KAOS-PNDK-001', 'Kaos warna hitam pendek 30s', 1, 2, '18000', 7, '28');
 
 -- --------------------------------------------------------
 
@@ -176,7 +187,12 @@ CREATE TABLE `stok_masuk` (
 INSERT INTO `stok_masuk` (`id`, `tanggal`, `barcode`, `jumlah`, `keterangan`, `supplier`) VALUES
 (1, '2020-02-21 13:41:25', 1, '10', 'penambahan', NULL),
 (2, '2020-02-21 13:41:40', 2, '20', 'penambahan', 1),
-(3, '2020-02-21 13:42:23', 1, '10', 'penambahan', 2);
+(3, '2020-02-21 13:42:23', 1, '10', 'penambahan', 2),
+(4, '2024-12-09 20:02:08', 1, '12', 'penambahan', 2),
+(5, '2024-12-10 02:01:15', 2, '20', 'penambahan', 2),
+(6, '2024-12-10 07:01:11', 1, '21', 'penambahan', 1),
+(7, '2024-12-10 12:52:50', 1, '12', 'penambahan', 2),
+(8, '2024-12-12 20:18:28', 2, '12', 'penambahan', NULL);
 
 -- --------------------------------------------------------
 
@@ -228,7 +244,8 @@ INSERT INTO `toko` (`id`, `nama`, `alamat`) VALUES
 CREATE TABLE `transaksi` (
   `id` int(11) NOT NULL,
   `tanggal` datetime NOT NULL,
-  `barcode` varchar(10) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `barcode` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `nama_produk` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
   `qty` varchar(10) COLLATE utf8mb4_unicode_ci NOT NULL,
   `total_bayar` varchar(10) COLLATE utf8mb4_unicode_ci NOT NULL,
   `jumlah_uang` varchar(10) COLLATE utf8mb4_unicode_ci NOT NULL,
@@ -242,11 +259,26 @@ CREATE TABLE `transaksi` (
 -- Dumping data for table `transaksi`
 --
 
-INSERT INTO `transaksi` (`id`, `tanggal`, `barcode`, `qty`, `total_bayar`, `jumlah_uang`, `diskon`, `pelanggan`, `nota`, `kasir`) VALUES
-(7, '2024-11-17 19:21:54', '2', '2', '36000', '50000', '', 2, 'LM4CBUI1O6JUFS2', 1),
-(8, '2024-11-17 19:25:00', '2', '3', '54000', '100000', '', 2, 'MMGPKWG3RLQLFAL', 1),
-(9, '2024-11-17 19:37:22', '1', '2', '110000', '150000', '2', 3, 'DKA7WG7JGU6I5TX', 1),
-(10, '2024-11-17 19:57:24', '2,1', '4,2', '182000', '200000', '5', 3, 'YC0LS3BWAXWJO1T', 1);
+INSERT INTO `transaksi` (`id`, `tanggal`, `barcode`, `nama_produk`, `qty`, `total_bayar`, `jumlah_uang`, `diskon`, `pelanggan`, `nota`, `kasir`) VALUES
+(52, '2024-12-10 01:21:54', 'KAOS-PNDK-001', 'Kaos warna hitam pendek 30s', '1', '18000', '19000', '', 2, 'GOM3DNDM44Z1V0Q', 1),
+(58, '2024-12-10 01:51:53', 'KAOS-PNDK-001', 'Kaos warna hitam pendek 30s', '1', '18000', '19010', '', 1, 'QE0DYA8ZD50M729', 1),
+(59, '2024-12-10 01:59:27', 'KAOS-PNDK-002', 'Kaos warna biru pendek 30s', '1', '55000', '58000', '', 1, '1HTHXMDUONXX13P', 1),
+(60, '2024-12-10 02:00:36', 'KAOS-PNDK-001', 'Kaos warna hitam pendek 30s', '1', '18000', '19090', '', 2, 'LFJPLY0WRQT13B0', 1),
+(82, '2021-11-25 00:00:00', 'KAOS-PNDK-002', 'Kaos warna biru panjang 30s', '3', '57000', '60000', '2000', 2, 'TWUC26NMYNMQKP8', 2),
+(85, '2021-01-12 00:00:00', 'KAOS-PNDK-001', 'Kaos warna hitam pendek 30s', '4', '72000', '74000', '1000', 2, 'JAKPQW123NZKTY7', 5),
+(86, '2020-08-25 00:00:00', 'KAOS-PNDK-002', 'Kaos warna biru panjang 30s', '6', '114000', '120000', '3000', 3, 'UNBX65LAPQVWFJ2', 6),
+(88, '2024-02-18 00:00:00', 'KAOS-PNDK-002', 'Kaos warna biru panjang 30s', '7', '133000', '140000', '3500', 2, 'VFXJY234QWNRLP4', 8),
+(94, '2022-10-01 00:00:00', 'KAOS-PNDK-002', 'Kaos warna biru panjang 30s', '4', '76000', '80000', '1500', 2, 'WYRT65MQZPLCX10', 4),
+(97, '2023-10-01 00:00:00', 'KAOS-PNDK-001', 'Kaos warna hitam pendek 30s', '7', '126000', '130000', '3500', 2, 'LZQPXM49WYNTKR1', 7),
+(98, '2021-10-16 00:00:00', 'KAOS-PNDK-002', 'Kaos warna biru panjang 30s', '8', '152000', '160000', '4000', 3, 'TRZPLX85MQNYWF1', 8),
+(100, '2023-07-02 00:00:00', 'KAOS-PNDK-002', 'Kaos warna biru panjang 30s', '9', '171000', '180000', '5000', 2, 'YZPQTM84NWXRLK1', 10),
+(101, '2024-12-10 03:37:49', 'KAOS-PNDK-002', 'Kaos warna biru pendek 30s', '1', '55000', '60000', '', 2, 'WWFS5L1T29EC8CT', 1),
+(102, '2024-12-10 03:38:39', 'KAOS-PNDK-002', 'Kaos warna biru pendek 30s', '5', '275000', '300000', '', 2, 'BN6MG90ENMLBB6V', 1),
+(106, '2024-12-12 22:42:10', 'KAOS-PNDK-002', 'Kaos warna biru pendek 30s', '20', '1100000', '1100000', '', 2, 'PZ49HTHY5F7T2M1', 1),
+(107, '2024-12-12 22:44:03', 'KAOS-PNDK-001', 'Kaos warna hitam pendek 30s', '3', '54000', '55000', '', 2, 'JVWC22RB9HY166E', 1),
+(108, '2024-12-12 22:49:58', 'KAOS-PNDK-001', 'Kaos warna hitam pendek 30s', '1', '18000', '18000', '1000', 2, 'WXFJE98VV1VDWSQ', 1),
+(109, '2024-12-12 22:56:38', 'KAOS-PNDK-001', 'Kaos warna hitam pendek 30s', '1', '18000', '18000', '1000', 2, 'SGXNWBKM7VQ21LL', 1),
+(110, '2024-12-12 22:57:56', 'KAOS-PNDK-001', 'Kaos warna hitam pendek 30s', '1', '18000', '18000', '1000', 2, 'N8Z5GKU5UWA3V5U', 1);
 
 --
 -- Indexes for dumped tables
@@ -268,6 +300,12 @@ ALTER TABLE `pelanggan`
 -- Indexes for table `pengguna`
 --
 ALTER TABLE `pengguna`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indexes for table `penjualan`
+--
+ALTER TABLE `penjualan`
   ADD PRIMARY KEY (`id`);
 
 --
@@ -326,13 +364,19 @@ ALTER TABLE `kategori_produk`
 -- AUTO_INCREMENT for table `pelanggan`
 --
 ALTER TABLE `pelanggan`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- AUTO_INCREMENT for table `pengguna`
 --
 ALTER TABLE `pengguna`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+
+--
+-- AUTO_INCREMENT for table `penjualan`
+--
+ALTER TABLE `penjualan`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `produk`
@@ -356,7 +400,7 @@ ALTER TABLE `stok_keluar`
 -- AUTO_INCREMENT for table `stok_masuk`
 --
 ALTER TABLE `stok_masuk`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 
 --
 -- AUTO_INCREMENT for table `supplier`
@@ -374,7 +418,7 @@ ALTER TABLE `toko`
 -- AUTO_INCREMENT for table `transaksi`
 --
 ALTER TABLE `transaksi`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=111;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

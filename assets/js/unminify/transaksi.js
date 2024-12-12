@@ -8,7 +8,7 @@ let isCetak = false,
     });
 
 function reloadTable() {
-    transaksi.ajax.reload()
+    transaksi.ajax.reload();
 }
 
 function nota(jumlah) {
@@ -16,7 +16,7 @@ function nota(jumlah) {
         char = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789",
         total = char.length;
     for (var r = 0; r < jumlah; r++) hasil += char.charAt(Math.floor(Math.random() * total));
-    return hasil
+    return hasil;
 }
 
 function getNama() {
@@ -30,12 +30,12 @@ function getNama() {
         success: res => {
             $("#nama_produk").html(res.nama_produk);
             $("#sisa").html(`Sisa ${res.stok}`);
-            checkEmpty()
+            checkEmpty();
         },
         error: err => {
-            console.log(err)
+            console.log(err);
         }
-    })
+    });
 }
 
 function checkStok() {
@@ -54,20 +54,22 @@ function checkStok() {
                 harga = parseInt(res.harga),
                 dataBarcode = res.barcode,
                 total = parseInt($("#total").html());
-            if (stok < jumlah) Swal.fire("Gagal", "Stok Tidak Cukup", "warning");
-            else {
+
+            if (stok < jumlah) {
+                Swal.fire("Gagal", "Stok Tidak Cukup", "warning");
+            } else {
                 let a = transaksi.rows().indexes().filter((a, t) => dataBarcode === transaksi.row(a).data()[0]);
                 if (a.length > 0) {
                     let row = transaksi.row(a[0]),
                         data = row.data();
                     if (stok < data[3] + jumlah) {
-                        Swal.fire('stok', "Stok Tidak Cukup", "warning")
+                        Swal.fire('Stok', "Stok Tidak Cukup", "warning");
                     } else {
                         data[3] = data[3] + jumlah;
                         row.data(data).draw();
                         indexProduk = produk.findIndex(a => a.id == barcode);
                         produk[indexProduk].stok = stok - data[3];
-                        $("#total").html(total + harga * jumlah)
+                        $("#total").html(total + harga * jumlah);
                     }
                 } else {
                     produk.push({
@@ -80,32 +82,33 @@ function checkStok() {
                         nama_produk,
                         harga,
                         jumlah,
-                        `<button name="${barcode}" class="btn btn-sm btn-danger" onclick="remove('${barcode}')">Hapus</btn>`]).draw();
+                        `<button name="${barcode}" class="btn btn-sm btn-danger" onclick="remove('${barcode}')">Hapus</button>`
+                    ]).draw();
                     $("#total").html(total + harga * jumlah);
                     $("#jumlah").val("");
                     $("#tambah").attr("disabled", "disabled");
-                    $("#bayar").removeAttr("disabled")
+                    $("#bayar").removeAttr("disabled");
                 }
             }
         }
-    })
+    });
 }
 
 function bayarCetak() {
-    isCetak = true
+    isCetak = true;
 }
 
 function bayar() {
-    isCetak = false
+    isCetak = false;
 }
 
 function checkEmpty() {
     let barcode = $("#barcode").val(),
         jumlah = $("#jumlah").val();
     if (barcode !== "" && jumlah !== "" && parseInt(jumlah) >= 1) {
-        $("#tambah").removeAttr("disabled")
+        $("#tambah").removeAttr("disabled");
     } else {
-        $("#tambah").attr("disabled", "disabled")
+        $("#tambah").attr("disabled", "disabled");
     }
 }
 
@@ -114,10 +117,10 @@ function checkUang() {
         total_bayar = parseInt($(".total_bayar").html());
     if (jumlah_uang !== "" && jumlah_uang >= total_bayar) {
         $("#add").removeAttr("disabled");
-        $("#cetak").removeAttr("disabled")
+        $("#cetak").removeAttr("disabled");
     } else {
         $("#add").attr("disabled", "disabled");
-        $("#cetak").attr("disabled", "disabled")
+        $("#cetak").attr("disabled", "disabled");
     }
 }
 
@@ -126,49 +129,14 @@ function remove(nama) {
         stok = data[3],
         harga = data[2],
         total = parseInt($("#total").html());
-    akhir = total - stok * harga
+    akhir = total - stok * harga;
     $("#total").html(akhir);
     transaksi.row($("[name=" + nama + "]").closest("tr")).remove().draw();
     $("#tambah").attr("disabled", "disabled");
     if (akhir < 1) {
-        $("#bayar").attr("disabled", "disabled")
+        $("#bayar").attr("disabled", "disabled");
     }
 }
-
-// function add() {
-//     let data = transaksi.rows().data(),
-//         qty = [];
-//     $.each(data, (index, value) => {
-//         qty.push(value[3])
-//     });
-//     $.ajax({
-//         url: addUrl,
-//         type: "post",
-//         dataType: "json",
-//         data: {
-//             produk: JSON.stringify(produk),
-//             tanggal: $("#tanggal").val(),
-//             qty: qty,
-//             total_bayar: $("#total").html(),
-//             jumlah_uang: $('[name="jumlah_uang"]').val(),
-//             diskon: $('[name="diskon"]').val(),
-//             pelanggan: $("#pelanggan").val(),
-//             nota: $("#nota").html()
-//         },
-//         success: res => {
-//             if (isCetak) {
-//                 Swal.fire("Sukses", "Sukses Membayar", "success").
-//                     then(() => window.location.href = `${cetakUrl}${res}`)
-//             } else {
-//                 Swal.fire("Sukses", "Sukses Membayar", "success").
-//                     then(() => window.location.reload())
-//             }
-//         },
-//         error: err => {
-//             console.log(err)
-//         }
-//     })
-// }
 
 function add() {
     let data = transaksi.rows().data(),
@@ -205,13 +173,26 @@ function add() {
     });
 }
 
+// function kembalian() {
+//     let total = $("#total").html(),
+//         jumlah_uang = $('[name="jumlah_uang"').val(),
+//         diskon = $('[name="diskon"]').val();
+//     $(".kembalian").html(jumlah_uang - total - diskon);
+//     checkUang();
+// }
+
 function kembalian() {
     let total = $("#total").html(),
         jumlah_uang = $('[name="jumlah_uang"').val(),
         diskon = $('[name="diskon"]').val();
-    $(".kembalian").html(jumlah_uang - total - diskon);
-    checkUang()
+
+    // Deduct discount from the total before calculating the change
+    let totalAfterDiscount = total - diskon;
+    $(".kembalian").html(jumlah_uang - totalAfterDiscount);
+    checkUang();
 }
+
+
 $("#barcode").select2({
     placeholder: "Barcode",
     ajax: {
@@ -227,6 +208,7 @@ $("#barcode").select2({
         cache: true
     }
 });
+
 $("#pelanggan").select2({
     placeholder: "Pelanggan",
     ajax: {
@@ -242,26 +224,34 @@ $("#pelanggan").select2({
         cache: true
     }
 });
+
 $("#tanggal").datetimepicker({
     format: "dd-mm-yyyy h:ii:ss"
 });
+
 $(".modal").on("hidden.bs.modal", () => {
     $("#form")[0].reset();
-    $("#form").validate().resetForm()
+    $("#form").validate().resetForm();
 });
+
 $(".modal").on("show.bs.modal", () => {
     let now = moment().format("D-MM-Y H:mm:ss"),
         total = $("#total").html(),
         jumlah_uang = $('[name="jumlah_uang"').val();
-    $("#tanggal").val(now), $(".total_bayar").html(total), $(".kembalian").html(Math.max(jumlah_uang - total, 0))
+    $("#tanggal").val(now);
+    $(".total_bayar").html(total);
+    $(".kembalian").html(Math.max(jumlah_uang - total, 0));
 });
+
 $("#form").validate({
     errorElement: "span",
     errorPlacement: (err, el) => {
-        err.addClass("invalid-feedback"), el.closest(".form-group").append(err)
+        err.addClass("invalid-feedback");
+        el.closest(".form-group").append(err);
     },
     submitHandler: () => {
-        add()
+        add();
     }
 });
+
 $("#nota").html(nota(15));
