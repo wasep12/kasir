@@ -6,7 +6,7 @@ class Transaksi_model extends CI_Model
 	public function __construct()
 	{
 		parent::__construct();
-		$this->load->model('Transaksi_model', 'transaksi_model'); // Pastikan model dimuat
+		$this->load->model('Transaksi_model', 'transaksi_model');
 	}
 	public function getById($id)
 	{
@@ -100,7 +100,7 @@ class Transaksi_model extends CI_Model
 
 	public function penjualanBulan($date)
 	{
-		// Gunakan format tanggal standar (YYYY-MM-DD) dalam query
+		//format tanggal standar (YYYY-MM-DD) dalam query
 		$qty = $this->db->query("SELECT qty FROM transaksi WHERE DATE_FORMAT(tanggal, '%Y-%m-%d') = '$date'")->result();
 
 		$d = [];
@@ -108,7 +108,7 @@ class Transaksi_model extends CI_Model
 
 		// Memproses data qty yang diambil dari database
 		foreach ($qty as $key) {
-			// Pisahkan qty yang dipisah koma
+			//qty yang dipisah koma
 			$d[] = explode(',', $key->qty);
 		}
 
@@ -120,39 +120,6 @@ class Transaksi_model extends CI_Model
 
 		return $data; // Mengembalikan array yang berisi total qty per transaksi
 	}
-
-	// public function penjualanTahun($year)
-	// {
-	// 	$data = []; // Inisialisasi array untuk menampung hasil
-
-	// 	// Loop untuk setiap bulan dalam setahun
-	// 	for ($month = 1; $month <= 12; $month++) {
-	// 		// Format bulan dan tahun menjadi "YYYY-MM"
-	// 		$monthYear = sprintf('%04d-%02d', $year, $month);
-
-	// 		// Query untuk mendapatkan data qty dari transaksi
-	// 		$qty = $this->db->query("SELECT qty FROM transaksi WHERE DATE_FORMAT(tanggal, '%Y-%m') = '$monthYear'")->result();
-
-	// 		$monthlyTotal = 0; // Variabel untuk menampung total penjualan bulan ini
-
-	// 		// Memproses setiap data qty yang diterima
-	// 		foreach ($qty as $key) {
-	// 			// Pisahkan qty jika ada lebih dari satu angka yang dipisahkan oleh koma
-	// 			$qtyArray = explode(',', $key->qty);
-
-	// 			// Jumlahkan semua qty yang dipisahkan koma
-	// 			foreach ($qtyArray as $q) {
-	// 				$monthlyTotal += (int) $q; // Menjumlahkan nilai qty
-	// 			}
-	// 		}
-
-	// 		// Tambahkan total bulan ke dalam array data
-	// 		$data[] = $monthlyTotal;
-	// 	}
-
-	// 	// Kembalikan array dengan total penjualan untuk setiap bulan
-	// 	return $data;
-	// }
 
 
 	public function transaksiHari($hari)
@@ -167,6 +134,7 @@ class Transaksi_model extends CI_Model
 
 	public function getAll()
 	{
+		// Ambil data transaksi tanpa bergabung dengan produk untuk menghindari duplikasi
 		$this->db->select('
         transaksi.id, 
         transaksi.tanggal, 
@@ -175,26 +143,45 @@ class Transaksi_model extends CI_Model
         transaksi.total_bayar, 
         transaksi.jumlah_uang, 
         transaksi.diskon, 
-        pelanggan.nama as pelanggan, 
-        produk.nama_produk as nama_produk
+        pelanggan.nama as pelanggan
     ');
 		$this->db->from('transaksi');
 		$this->db->join('pelanggan', 'transaksi.pelanggan = pelanggan.id', 'left');
-		$this->db->join('produk', 'transaksi.barcode = produk.barcode', 'left');
 		$query = $this->db->get();
 
 		// Debugging untuk memastikan data yang diambil
 		if ($query->num_rows() > 0) {
+			$results = $query->result();
+			foreach ($results as &$result) {
+				// Pisahkan barcode yang digabung dan cari nama produk untuk setiap barcode
+				$barcodes = explode(',', $result->barcode);
+				$productNames = [];
+
+				foreach ($barcodes as $barcode) {
+					// Cari nama produk berdasarkan barcode
+					$this->db->select('nama_produk');
+					$this->db->from('produk');
+					$this->db->where('barcode', trim($barcode));
+					$productQuery = $this->db->get();
+
+					if ($productQuery->num_rows() > 0) {
+						$product = $productQuery->row();
+						$productNames[] = $product->nama_produk;
+					}
+				}
+
+				// Gabungkan nama produk yang ditemukan, dipisahkan koma
+				$result->nama_produk = implode(', ', $productNames);
+			}
+
 			// Menampilkan hasil query ke log
-			error_log(print_r($query->result(), true)); // Menampilkan hasil ke log error
+			error_log(print_r($results, true)); // Menampilkan hasil ke log error
 		} else {
 			error_log("Tidak ada data ditemukan.");
 		}
 
-		return $query->result();
+		return $results;
 	}
-
-
 
 	public function getName($barcode)
 	{
@@ -207,60 +194,6 @@ class Transaksi_model extends CI_Model
 	}
 
 }
-
-// class Peramalan extends CI_Controller
-// {
-// 	public function index()
-// 	{
-// 		$tahun = $this->input->post('tahun') ?: date('Y');
-
-// 		// Ambil data transaksi berdasarkan tahun
-// 		$this->load->model('TransaksiModel');
-// 		$transaksi = $this->TransaksiModel->get_data_per_bulan($tahun);
-
-// 		// Variabel untuk perhitungan Least Square
-// 		$data = [];
-// 		$total_bulan = count($transaksi);
-// 		$start_x = -1 * floor($total_bulan / 2);
-
-// 		foreach ($transaksi as $key => $row) {
-// 			$x = $start_x + $key;
-// 			$y = $row->total_qty;
-
-// 			$data[] = [
-// 				'bulan' => $row->bulan,
-// 				'x' => $x,
-// 				'y' => $y,
-// 				'x2' => pow($x, 2),
-// 				'xy' => $x * $y,
-// 			];
-// 		}
-
-// 		$this->load->view('least_square', [
-// 			'data' => $data,
-// 			'tahun' => $tahun,
-// 		]);
-// 	}
-// }
-
-// class TransaksiModel extends CI_Model
-// {
-// 	public function get_data_per_bulan($tahun)
-// 	{
-// 		$this->db->select("MONTHNAME(tanggal) as bulan, SUM(qty) as total_qty");
-// 		$this->db->from("transaksi");
-// 		$this->db->where("YEAR(tanggal)", $tahun);
-// 		$this->db->group_by("MONTH(tanggal)");
-// 		$this->db->order_by("MONTH(tanggal)", "ASC");
-// 		$query = $this->db->get();
-
-// 		if ($query->num_rows() > 0) {
-// 			return $query->result();
-// 		}
-
-// 		return []; // Kembalikan array kosong jika tidak ada data
-// 	}
-// }
 
 
 /* End of file Transaksi_model.php */

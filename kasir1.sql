@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Dec 12, 2024 at 05:00 PM
+-- Generation Time: Dec 14, 2024 at 02:11 PM
 -- Server version: 10.4.25-MariaDB
 -- PHP Version: 7.4.30
 
@@ -61,7 +61,8 @@ CREATE TABLE `pelanggan` (
 
 INSERT INTO `pelanggan` (`id`, `nama`, `jenis_kelamin`, `alamat`, `telepon`) VALUES
 (2, 'Rahma', 'Wanita', 'Banjarnegara', '085463728374'),
-(3, 'mumu', 'Pria', 'kutruk', '0822132781718');
+(3, 'mumu', 'Pria', 'kutruk', '0822132781718'),
+(7, 'YUDIN', 'Pria', 'KP Peuteuy rt 001 rw 003', '083890887676');
 
 -- --------------------------------------------------------
 
@@ -122,7 +123,9 @@ CREATE TABLE `produk` (
 
 INSERT INTO `produk` (`id`, `barcode`, `nama_produk`, `kategori`, `satuan`, `harga`, `stok`, `terjual`) VALUES
 (1, 'KAOS-PNDK-002', 'Kaos warna biru pendek 30s', 2, 2, '55000', 1, '44'),
-(2, 'KAOS-PNDK-001', 'Kaos warna hitam pendek 30s', 1, 2, '18000', 7, '28');
+(2, 'KAOS-PNDK-001', 'Kaos warna hitam pendek 30s', 1, 2, '18000', 6, '29'),
+(3, 'D-000878', 'TAS', 2, 3, '200000', 11, '1'),
+(4, 'SB-0003', 'SABLON DTF', 3, 2, '25000', 17, '3');
 
 -- --------------------------------------------------------
 
@@ -192,7 +195,9 @@ INSERT INTO `stok_masuk` (`id`, `tanggal`, `barcode`, `jumlah`, `keterangan`, `s
 (5, '2024-12-10 02:01:15', 2, '20', 'penambahan', 2),
 (6, '2024-12-10 07:01:11', 1, '21', 'penambahan', 1),
 (7, '2024-12-10 12:52:50', 1, '12', 'penambahan', 2),
-(8, '2024-12-12 20:18:28', 2, '12', 'penambahan', NULL);
+(8, '2024-12-12 20:18:28', 2, '12', 'penambahan', NULL),
+(9, '2024-12-14 16:42:05', 3, '12', 'penambahan', 1),
+(10, '2024-12-14 16:47:11', 4, '20', 'penambahan', 2);
 
 -- --------------------------------------------------------
 
@@ -278,7 +283,11 @@ INSERT INTO `transaksi` (`id`, `tanggal`, `barcode`, `nama_produk`, `qty`, `tota
 (107, '2024-12-12 22:44:03', 'KAOS-PNDK-001', 'Kaos warna hitam pendek 30s', '3', '54000', '55000', '', 2, 'JVWC22RB9HY166E', 1),
 (108, '2024-12-12 22:49:58', 'KAOS-PNDK-001', 'Kaos warna hitam pendek 30s', '1', '18000', '18000', '1000', 2, 'WXFJE98VV1VDWSQ', 1),
 (109, '2024-12-12 22:56:38', 'KAOS-PNDK-001', 'Kaos warna hitam pendek 30s', '1', '18000', '18000', '1000', 2, 'SGXNWBKM7VQ21LL', 1),
-(110, '2024-12-12 22:57:56', 'KAOS-PNDK-001', 'Kaos warna hitam pendek 30s', '1', '18000', '18000', '1000', 2, 'N8Z5GKU5UWA3V5U', 1);
+(110, '2024-12-12 22:57:56', 'KAOS-PNDK-001', 'Kaos warna hitam pendek 30s', '1', '18000', '18000', '1000', 2, 'N8Z5GKU5UWA3V5U', 1),
+(111, '2024-12-13 12:43:55', 'KAOS-PNDK-001', 'Kaos warna hitam pendek 30s', '1', '18000', '18000', '', 2, '3GUQN4GHXIBI975', 1),
+(112, '2024-12-14 16:42:35', 'D-000878', 'TAS', '1', '200000', '200000', '', 2, 'IAZPKMVHTDBGFMM', 1),
+(113, '2024-12-14 16:47:40', 'SB-0003', 'SABLON DTF', '2', '50000', '100000', '', 3, '61KHE8LHJTDYCMR', 1),
+(114, '2024-12-14 16:54:31', 'SB-0003', 'SABLON DTF', '1', '25000', '26000', '200', 7, '456BH0EDA4JNQOI', 1);
 
 --
 -- Indexes for dumped tables
@@ -364,7 +373,7 @@ ALTER TABLE `kategori_produk`
 -- AUTO_INCREMENT for table `pelanggan`
 --
 ALTER TABLE `pelanggan`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
 --
 -- AUTO_INCREMENT for table `pengguna`
@@ -382,7 +391,7 @@ ALTER TABLE `penjualan`
 -- AUTO_INCREMENT for table `produk`
 --
 ALTER TABLE `produk`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT for table `satuan_produk`
@@ -400,7 +409,7 @@ ALTER TABLE `stok_keluar`
 -- AUTO_INCREMENT for table `stok_masuk`
 --
 ALTER TABLE `stok_masuk`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
 
 --
 -- AUTO_INCREMENT for table `supplier`
@@ -418,7 +427,7 @@ ALTER TABLE `toko`
 -- AUTO_INCREMENT for table `transaksi`
 --
 ALTER TABLE `transaksi`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=111;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=115;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

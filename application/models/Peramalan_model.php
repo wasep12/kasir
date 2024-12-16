@@ -5,6 +5,7 @@ class Peramalan_model extends CI_Model
 {
     public function hitung_least_square($data)
     {
+        // var_dump($data);
         $x = 1;
         $total_x = 0;
         $total_y = 0;

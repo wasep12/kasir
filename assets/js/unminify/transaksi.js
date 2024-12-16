@@ -140,7 +140,9 @@ function remove(nama) {
 
 function add() {
     let data = transaksi.rows().data(),
-        produkData = [];
+        produkData = [],
+        barcodes = [],
+        namaProduks = [];
 
     $.each(data, (index, value) => {
         produkData.push({
@@ -148,13 +150,19 @@ function add() {
             nama_produk: value[1],  // Ambil nama produk dari kolom 1
             qty: value[3]           // Ambil jumlah produk dari kolom 3
         });
+
+        // Masukkan barcode dan nama produk ke array untuk penggabungan
+        barcodes.push(value[0]);
+        namaProduks.push(value[1]);
     });
 
     $.ajax({
         url: addUrl,
         type: 'POST',
         data: {
-            produk: JSON.stringify(produkData), // Kirim produk sebagai JSON
+            produk: JSON.stringify(produkData),        // Kirim data produk sebagai JSON
+            barcodes: barcodes.join(','),             // Gabungkan barcode dengan koma
+            nama_produks: namaProduks.join(','),      // Gabungkan nama produk dengan koma
             tanggal: $('#tanggal').val(),
             pelanggan: $('#pelanggan').val(),
             total_bayar: $('#total').text(),
@@ -172,23 +180,35 @@ function add() {
         }
     });
 }
-
-// function kembalian() {
-//     let total = $("#total").html(),
-//         jumlah_uang = $('[name="jumlah_uang"').val(),
-//         diskon = $('[name="diskon"]').val();
-//     $(".kembalian").html(jumlah_uang - total - diskon);
-//     checkUang();
-// }
-
 function kembalian() {
-    let total = $("#total").html(),
-        jumlah_uang = $('[name="jumlah_uang"').val(),
-        diskon = $('[name="diskon"]').val();
+    // Ambil nilai total, jumlah uang, dan diskon dari elemen HTML
+    let total = parseFloat($("#total").html()) || 0; // Total belanja
+    let jumlah_uang = parseFloat($('[name="jumlah_uang"]').val()) || 0; // Uang yang dibayar pelanggan
+    let diskon = parseFloat($('[name="diskon"]').val()) || 0; // Diskon yang diberikan
 
-    // Deduct discount from the total before calculating the change
+    // Hitung total setelah diskon
     let totalAfterDiscount = total - diskon;
-    $(".kembalian").html(jumlah_uang - totalAfterDiscount);
+
+    // Pastikan totalAfterDiscount tidak negatif
+    if (totalAfterDiscount < 0) {
+        totalAfterDiscount = 0;
+    }
+
+    // Hitung kembalian (tanpa menambahkan diskon ke kembalian)
+    let kembalian = jumlah_uang - totalAfterDiscount;
+
+    // Pastikan kembalian tidak negatif
+    if (kembalian < 0) {
+        kembalian = 0;
+    }
+
+    // Tampilkan kembalian akhir
+    $(".kembalian").html(kembalian.toFixed(2));
+
+    // Tambahkan logika untuk menampilkan diskon jika ada
+    $(".diskon").html(diskon.toFixed(2)); // Tempatkan di elemen HTML untuk menampilkan diskon
+
+    // Validasi tambahan jika diperlukan
     checkUang();
 }
 

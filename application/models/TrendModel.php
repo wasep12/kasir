@@ -14,11 +14,6 @@ class TrendModel extends CI_Model
             // Pastikan hasil query adalah array
             $result = $query->result_array();
 
-            // Debug hasil query untuk memastikan
-            // echo '<pre>';
-            // print_r($result); 
-            // echo '</pre>';
-
             return $result;  // Kembalikan array hasil query
         } else {
             return [];
@@ -39,4 +34,14 @@ class TrendModel extends CI_Model
             return [];
         }
     }
+
+    public function get_data_per_tahun()
+    {
+        $this->db->select("YEAR(tanggal) AS tahun, SUM(qty) AS total_qty");
+        $this->db->from("transaksi");
+        $this->db->group_by("YEAR(tanggal)");
+        $this->db->order_by("YEAR(tanggal)", "ASC");
+        return $this->db->get()->result();
+    }
+
 }

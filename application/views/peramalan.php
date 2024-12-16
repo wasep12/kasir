@@ -28,7 +28,7 @@
                         <div class="col-12">
                             <div class="card">
                                 <div class="card-header bg-primary text-white">
-                                    <h3 class="card-title">Trend Penjualan Pertahun</h3>
+                                    <h3 class="card-title">Trend Penjualan Perbulan</h3>
                                 </div>
                                 <div class="card-body">
                                     <!-- Form untuk memilih tahun -->
@@ -55,7 +55,7 @@
                     </div>
                 </div>
                 <div class="container-fluid">
-                    <div class="card mt-3 p-3">
+                    <div class="card p-3">
                         <h3 class="text-center mb-3">Perhitungan Least Square untuk Tahun <?= $tahun; ?></h3>
 
                         <?php if (!empty($peramalan_data['data'])) : ?>
@@ -94,44 +94,67 @@
                                 <li>b = Slope (kemiringan garis tren)</li>
                                 <li>X = Waktu (bulan atau periode)</li>
                             </ul>
-                            <h4>Hasil Perhitungan Least Square:</h4>
-                            <p>Berikut adalah data yang digunakan dalam perhitungan:</p>
-                            <ul>
-                                <li>
-                                    \(\Sigma X\): Jumlah total dari nilai variabel independen (\(X\)), yang biasanya
-                                    mewakili periode waktu atau urutan data.
-                                </li>
-                                <li>
-                                    \(\Sigma Y\): Jumlah total dari nilai variabel dependen (\(Y\)), yaitu data yang
-                                    diamati atau diukur pada periode tertentu.
-                                </li>
-                                <li>
-                                    \(\Sigma X^2\): Jumlah total dari nilai kuadrat variabel independen (\(X^2\)),
-                                    digunakan untuk menghitung koefisien dalam model.
-                                </li>
-                                <li>
-                                    \(\Sigma XY\): Jumlah hasil perkalian antara nilai variabel independen (\(X\))
-                                    dan variabel dependen (\(Y\)) untuk setiap data.
-                                </li>
-                            </ul>
-                            <p>Hasil perhitungan menggunakan data di atas menghasilkan:</p>
-                            <ul>
-                                <li>
-                                    Konstanta (\(a\)): <?= round($peramalan_data['a'], 2); ?>
-                                </li>
-                                <li>
-                                    Koefisien (\(b\)): <?= round($peramalan_data['b'], 2); ?>
-                                </li>
-                            </ul>
-                            <p>Data ini diolah untuk menghasilkan persamaan garis tren \( Y = a + bX \) yang digunakan
-                                untuk memperkirakan nilai \(Y\) berdasarkan nilai \(X\).</p>
+
+                            <!-- Tombol untuk menampilkan penjelasan lebih lanjut -->
+                            <button class="btn btn-primary" id="toggleDetailsBtn">Detail lebih lanjut</button>
+
+                            <!-- Penjelasan rinci yang disembunyikan -->
+                            <div id="details" style="display:none;">
+                                <h4 class="mt-3">Hasil Perhitungan Least Square:</h4>
+                                <p>Berikut adalah data yang digunakan dalam perhitungan:</p>
+                                <ul>
+                                    <li>
+                                        \(\Sigma X\): Jumlah total dari nilai variabel independen (\(X\)), yang biasanya
+                                        mewakili periode waktu atau urutan data.
+                                    </li>
+                                    <li>
+                                        \(\Sigma Y\): Jumlah total dari nilai variabel dependen (\(Y\)), yaitu data yang
+                                        diamati atau diukur pada periode tertentu.
+                                    </li>
+                                    <li>
+                                        \(\Sigma X^2\): Jumlah total dari nilai kuadrat variabel independen (\(X^2\)),
+                                        digunakan untuk menghitung koefisien dalam model.
+                                    </li>
+                                    <li>
+                                        \(\Sigma XY\): Jumlah hasil perkalian antara nilai variabel independen (\(X\))
+                                        dan variabel dependen (\(Y\)) untuk setiap data.
+                                    </li>
+                                </ul>
+                                <p>Hasil perhitungan menggunakan data di atas menghasilkan:</p>
+                                <ul>
+                                    <li>
+                                        Konstanta (\(a\)): <?= round($peramalan_data['a'], 2); ?>
+                                    </li>
+                                    <li>
+                                        Koefisien (\(b\)): <?= round($peramalan_data['b'], 2); ?>
+                                    </li>
+                                </ul>
+                                <p>Data ini diolah untuk menghasilkan persamaan garis tren \( Y = a + bX \) yang
+                                    digunakan
+                                    untuk memperkirakan nilai \(Y\) berdasarkan nilai \(X\).</p>
+                            </div>
+
+                            <?php else : ?>
+                            <div class="alert alert-warning">
+                                Data untuk tahun <?= $tahun; ?> tidak ditemukan. Silakan periksa kembali data yang
+                                tersedia.
+                            </div>
+                            <?php endif; ?>
                         </div>
 
-                        <?php else : ?>
-                        <div class="alert alert-warning">
-                            Data untuk tahun <?= $tahun; ?> tidak ditemukan. Silakan periksa kembali data yang tersedia.
-                        </div>
-                        <?php endif; ?>
+                        <script>
+                        // JavaScript untuk men-toggle visibilitas penjelasan
+                        document.getElementById('toggleDetailsBtn').addEventListener('click', function() {
+                            var details = document.getElementById('details');
+                            if (details.style.display === 'none') {
+                                details.style.display = 'block';
+                                this.textContent = 'Detail lebih sedikit'; // Ubah teks tombol
+                            } else {
+                                details.style.display = 'none';
+                                this.textContent = 'Detail lebih lanjut'; // Ubah teks tombol kembali
+                            }
+                        });
+                        </script>
 
             </section>
         </div>
@@ -145,7 +168,6 @@
     // Data bulan dan produk dari controller
     var bulan = <?php echo json_encode($bulan); ?>;
     var trendData = <?php echo json_encode($trend_data); ?>;
-
     // Membuat dataset untuk setiap produk
     var datasets = [];
 
